@@ -1,11 +1,24 @@
 package com.imooc;
 
+import com.imooc.controller.WelcomeController;
 import com.imooc.service.WelcomeService;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
+import java.util.concurrent.ConcurrentHashMap;
+
+@Configuration
+@ComponentScan("com.imooc")
 public class Entrance {
-	public static void main(String[] args) {
+
+	/**
+	 * 使用配置文件启动
+	 * @param args
+	 */
+	public static void main2(String[] args) {
 		System.out.println("hello world");
 		String xmlPath = "//Users/oldwong/Desktop/Spring/spring-framework-5.2.0.RELEASE/springdemo/src/main/resources/spring/spring-config.xml";
 		// 拿到对应的spring容器了
@@ -13,5 +26,22 @@ public class Entrance {
 		// getBean(bean的名字)
 		WelcomeService welcomeService = (WelcomeService) applicationContext.getBean("welcomeService");
 		welcomeService.sayHello("强大的spring框架");
+	}
+
+	/**
+	 * 注解方式启动容器
+	 */
+	public static void main(String[] args) {
+		// 指定配置类
+		AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext(Entrance.class);
+		String[] beanDefinitionNames = applicationContext.getBeanDefinitionNames();
+		// entrance
+		// welcomeServiceImpl
+		for(String beanName:beanDefinitionNames){
+			System.out.println(beanName);
+		}
+
+		WelcomeController welcomeController = (WelcomeController) applicationContext.getBean("welcomeController");
+		welcomeController.handleRequest();
 	}
 }

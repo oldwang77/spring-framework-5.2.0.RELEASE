@@ -55,6 +55,14 @@ import org.springframework.lang.Nullable;
  * @see org.springframework.beans.factory.BeanFactory
  * @see org.springframework.core.io.ResourceLoader
  */
+
+/**
+ * EnvironmentCapable
+ * ListableBeanFactory:列表的方式管理bean;
+ * HierarchicalBeanFactory:支持多级容器
+ * ApplicationEventPublisher：事件发布
+ */
+
 public interface ApplicationContext extends EnvironmentCapable, ListableBeanFactory, HierarchicalBeanFactory,
 		MessageSource, ApplicationEventPublisher, ResourcePatternResolver {
 

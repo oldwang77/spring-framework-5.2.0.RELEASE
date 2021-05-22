@@ -76,6 +76,7 @@ public interface BeanDefinitionReader {
 	ClassLoader getBeanClassLoader();
 
 	/**
+	 * Bean名字生成器，为匿名的bean生成一个名字,就是id
 	 * Return the BeanNameGenerator to use for anonymous beans
 	 * (without explicit bean name specified).
 	 */
@@ -112,6 +113,9 @@ public interface BeanDefinitionReader {
 	 */
 	int loadBeanDefinitions(String location) throws BeanDefinitionStoreException;
 
+	/**
+	 * 加载多个配置文件
+	 */
 	/**
 	 * Load bean definitions from the specified resource locations.
 	 * @param locations the resource locations, to be loaded with the ResourceLoader
