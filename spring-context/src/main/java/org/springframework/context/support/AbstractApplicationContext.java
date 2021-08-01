@@ -514,39 +514,77 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 	@Override
 	public void refresh() throws BeansException, IllegalStateException {
+		// 先给你加个锁，不然如果refresh没有结束，又来个启动或者销毁
 		synchronized (this.startupShutdownMonitor) {
 			// Prepare this context for refreshing.
+			// 无关紧要
 			prepareRefresh();
 
 			// Tell the subclass to refresh the internal bean factory.
+			/**
+			 * 非常关键的一步，这步操作完成了，配置文件就会生成一个个bean的定义，注册到beanFactory中
+			 * 当然，此时Bean还没有初始化，只是配置信息提取出来了
+			 * 注册也是把这些信息都保存到了注册中心（也就是一个 beanName=> beanDefinition 的hashMap
+			 */
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
 			// Prepare the bean factory for use in this context.
+			// 无关紧要
 			prepareBeanFactory(beanFactory);
 
 			try {
 				// Allows post-processing of the bean factory in context subclasses.
+				// 方法为空，可以扩展
+				/**
+				 * 这里需要知道 BeanFactoryPostProcessor 这个知识点，Bean 如果实现了此接口，
+				 * 那么在容器初始化以后，Spring 会负责调用里面的 postProcessBeanFactory 方法。】
+				 *
+				 * 这里是提供给子类的扩展点，到这里的时候，所有的 Bean 都加载、注册完成了，但是都还没有初始化
+				 * 具体的子类可以在这步的时候添加一些特殊的 BeanFactoryPostProcessor 的实现类或做点什么事
+				 */
 				postProcessBeanFactory(beanFactory);
 
 				// Invoke factory processors registered as beans in the context.
+				/**
+				 * 调用 BeanFactoryPostProcessor 各个实现类的 postProcessBeanFactory(factory) 方法
+				 */
 				invokeBeanFactoryPostProcessors(beanFactory);
 
 				// Register bean processors that intercept bean creation.
+				// 注册BeanPostProcessors
+				/**
+				 *  注册 BeanPostProcessor 的实现类，注意看和 BeanFactoryPostProcessor 的区别
+				 *  此接口两个方法: postProcessBeforeInitialization 和 postProcessAfterInitialization
+				 *  两个方法分别在 Bean 初始化之前和初始化之后得到执行。注意，到这里 Bean 还没初始化
+				 */
 				registerBeanPostProcessors(beanFactory);
 
 				// Initialize message source for this context.
+				// 国际化相关配置
 				initMessageSource();
 
 				// Initialize event multicaster for this context.
+				// 初始化应用程序事件=》观察者模式
 				initApplicationEventMulticaster();
 
 				// Initialize other special beans in specific context subclasses.
+				// 空的，子类实现
+				/**
+				 * 从方法名就可以知道，典型的模板方法(钩子方法)
+				 */
 				onRefresh();
 
 				// Check for listener beans and register them.
+				// 注册当前事件
 				registerListeners();
 
 				// Instantiate all remaining (non-lazy-init) singletons.
+				// 完成实例化功能
+				/**
+				 *  重点，重点，重点
+				 *  初始化所有的 singleton beans
+				 *  lazy-init 的除外）
+				 */
 				finishBeanFactoryInitialization(beanFactory);
 
 				// Last step: publish corresponding event.
@@ -849,6 +887,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 */
 	protected void finishBeanFactoryInitialization(ConfigurableListableBeanFactory beanFactory) {
 		// Initialize conversion service for this context.
+		/**
+		 * 注意了，初始化的动作包装在 beanFactory.getBean(...) 中，这里先不说细节，先往下看吧
+		 */
 		if (beanFactory.containsBean(CONVERSION_SERVICE_BEAN_NAME) &&
 				beanFactory.isTypeMatch(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class)) {
 			beanFactory.setConversionService(
@@ -875,6 +916,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		beanFactory.freezeConfiguration();
 
 		// Instantiate all remaining (non-lazy-init) singletons.
+		/**
+		 * 开始初始化
+		 */
 		beanFactory.preInstantiateSingletons();
 	}
 

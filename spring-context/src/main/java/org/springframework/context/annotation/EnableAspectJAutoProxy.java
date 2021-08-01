@@ -119,16 +119,18 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import(AspectJAutoProxyRegistrar.class)
+@Import(AspectJAutoProxyRegistrar.class)	// @import将AspectJAutoProxyRegistrar导入bean
 public @interface EnableAspectJAutoProxy {
 
 	/**
+	 * 表明该类使用CGLIB还是JDK动态代理
 	 * Indicate whether subclass-based (CGLIB) proxies are to be created as opposed
 	 * to standard Java interface-based proxies. The default is {@code false}.
 	 */
 	boolean proxyTargetClass() default false;
 
 	/**
+	 * 决定是否暴露动态代理实例
 	 * Indicate that the proxy should be exposed by the AOP framework as a {@code ThreadLocal}
 	 * for retrieval via the {@link org.springframework.aop.framework.AopContext} class.
 	 * Off by default, i.e. no guarantees that {@code AopContext} access will work.

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 public class HiController {
 	@Autowired
 	private HiService hiService;
+
 	public void handleRequest(){
 		hiService.sayHi();
 		hiService.justWantToSayHi();

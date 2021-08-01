@@ -127,9 +127,19 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 			closeBeanFactory();
 		}
 		try {
+			// 创建容器
+			/**
+			 * DefaultListableBeanFactory基本上是最牛的BeanFactory了
+			 * 实现了是在BeanFactory层次的最底层，实现了很多接口
+			 */
 			DefaultListableBeanFactory beanFactory = createBeanFactory();
+			// 序列化
 			beanFactory.setSerializationId(getId());
+			// 设置 BeanFactory 的两个配置属性：是否允许 Bean 覆盖、是否允许循环引用
 			customizeBeanFactory(beanFactory);
+			/**
+			 * 加载bean到BeanFactory中
+			 */
 			loadBeanDefinitions(beanFactory);
 			synchronized (this.beanFactoryMonitor) {
 				this.beanFactory = beanFactory;
@@ -223,9 +233,11 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	 */
 	protected void customizeBeanFactory(DefaultListableBeanFactory beanFactory) {
 		if (this.allowBeanDefinitionOverriding != null) {
+			// 是否允许 Bean 定义覆盖
 			beanFactory.setAllowBeanDefinitionOverriding(this.allowBeanDefinitionOverriding);
 		}
 		if (this.allowCircularReferences != null) {
+			// 是否允许 Bean 间的循环依赖
 			beanFactory.setAllowCircularReferences(this.allowCircularReferences);
 		}
 	}

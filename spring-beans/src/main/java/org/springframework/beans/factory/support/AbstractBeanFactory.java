@@ -238,15 +238,32 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @return an instance of the bean
 	 * @throws BeansException if the bean could not be created
 	 */
+
+	/**
+	 * 我们在剖析初始化 Bean 的过程，但是 getBean 方法我们经常是用来从容器中获取 Bean 用的，注意切换思路，
+	 * 已经初始化过了就从容器中直接返回，否则就先初始化再返回
+	 * @param name
+	 * @param requiredType
+	 * @param args
+	 * @param typeCheckOnly
+	 * @param <T>
+	 * @return
+	 * @throws BeansException
+	 */
 	@SuppressWarnings("unchecked")
 	protected <T> T doGetBean(final String name, @Nullable final Class<T> requiredType,
 			@Nullable final Object[] args, boolean typeCheckOnly) throws BeansException {
 
 		final String beanName = transformedBeanName(name);
+		// 注意跟着这个，这个是返回值
 		Object bean;
 
 		// Eagerly check singleton cache for manually registered singletons.
+		// 检查下是不是已经创建过了
 		Object sharedInstance = getSingleton(beanName);
+
+		// 这里说下 args 呗，虽然看上去一点不重要。前面我们一路进来的时候都是 getBean(beanName)，
+		// 所以 args 传参其实是 null 的，但是如果 args 不为空的时候，那么意味着调用方不是希望获取 Bean，而是创建 Bean
 		if (sharedInstance != null && args == null) {
 			if (logger.isTraceEnabled()) {
 				if (isSingletonCurrentlyInCreation(beanName)) {
@@ -257,6 +274,10 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					logger.trace("Returning cached instance of singleton bean '" + beanName + "'");
 				}
 			}
+			/**
+			 *  下面这个方法：如果是普通 Bean 的话，直接返回 sharedInstance，
+			 *  如果是 FactoryBean 的话，返回它创建的那个实例对象
+			 */
 			bean = getObjectForBeanInstance(sharedInstance, name, beanName, null);
 		}
 
@@ -317,9 +338,15 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				}
 
 				// Create bean instance.
+				/**
+				 * 如果是 singleton scope 的，创建 singleton 的实例
+				 */
 				if (mbd.isSingleton()) {
 					sharedInstance = getSingleton(beanName, () -> {
 						try {
+							/**
+							 * 创建bean的逻辑
+							 */
 							return createBean(beanName, mbd, args);
 						}
 						catch (BeansException ex) {

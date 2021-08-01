@@ -8,7 +8,8 @@ import org.springframework.stereotype.Controller;
 public class HelloController {
 	@Autowired
 	private HelloService helloService;
-	public void handleRequest(){
+
+	public void handleRequest() {
 		helloService.sayHello();
 		helloService.JustWantToThrowException();
 	}
